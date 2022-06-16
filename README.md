@@ -32,7 +32,7 @@ fi
 chmod +x /opt/watchlog.sh
 
 Создал юнит для сервиса
-vi /etc/systemd/system/watchlog.service
+>vi /etc/systemd/system/watchlog.service
 [Unit]
 Description=My watchlog service
 [Service]
@@ -41,7 +41,7 @@ EnvironmentFile=/etc/sysconfig/watchlog
 ExecStart=/opt/watchlog.sh $WORD $LOG
 
 И для таймера
-vi /etc/systemd/system/watchlog.timer
+>vi /etc/systemd/system/watchlog.timer
 [Unit]
 Description=Run watchlog script every 30 second
 [Timer]
@@ -52,10 +52,10 @@ Unit=watchlog.service
 WantedBy=multi-user.target
 
 Перезагрузил systemd
-systemctl daemon-reload
+>systemctl daemon-reload
 
 Запустил обе новые службы, вывод команды tail -f /var/log/messages
-[root@sysd ~]# tail -f /var/log/messages
+>tail -f /var/log/messages
 Jun 16 07:28:53 localhost systemd-logind: Removed session 4.
 Jun 16 07:28:53 localhost systemd: Removed slice User Slice of vagrant.
 Jun 16 07:29:25 localhost systemd: Created slice User Slice of vagrant.
