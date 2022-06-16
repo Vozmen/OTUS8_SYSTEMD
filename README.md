@@ -18,18 +18,18 @@ LOG=/var/log/watchlog.log
 echo "ALERT" > /var/log/watchlog.log
 
 Создал файл скрипта и дал на него полные права всем пользователям
-vi /opt/watchlog.sh
-#!/bin/bash
-WORD=$1
-LOG=$2
-DATE=`date`
-if grep $WORD $LOG &> /dev/null
-then
-logger "$DATE: I found word, Master!"
-else
-exit 0
-fi
-chmod +x /opt/watchlog.sh
+>vi /opt/watchlog.sh
+>#!/bin/bash
+>WORD=$1
+>LOG=$2
+>DATE=`date`
+>if grep $WORD $LOG &> /dev/null
+>then
+>logger "$DATE: I found word, Master!"
+>else
+>exit 0
+>fi
+>chmod +x /opt/watchlog.sh
 
 Создал юнит для сервиса
 vi /etc/systemd/system/watchlog.service
@@ -40,7 +40,7 @@ Type=oneshot
 EnvironmentFile=/etc/sysconfig/watchlog
 ExecStart=/opt/watchlog.sh $WORD $LOG
 
-È äëÿ òàéìåðà
+И для таймера
 vi /etc/systemd/system/watchlog.timer
 [Unit]
 Description=Run watchlog script every 30 second
@@ -51,10 +51,10 @@ Unit=watchlog.service
 [Install]
 WantedBy=multi-user.target
 
-Ïåðåçàãðóçèë systemd
+Перезагрузил systemd
 systemctl daemon-reload
 
-Çàïóñòèë îáå íîâûå ñëóæáû, âûâîä êîìàíäû tail -f /var/log/messages
+Запустил обе новые службы, вывод команды tail -f /var/log/messages
 [root@sysd ~]# tail -f /var/log/messages
 Jun 16 07:28:53 localhost systemd-logind: Removed session 4.
 Jun 16 07:28:53 localhost systemd: Removed slice User Slice of vagrant.
@@ -67,7 +67,7 @@ Jun 16 07:34:37 localhost systemd: Starting My watchlog service...
 Jun 16 07:34:37 localhost root: Thu Jun 16 07:34:37 UTC 2022: I found word, Master!
 Jun 16 07:34:37 localhost systemd: Started My watchlog service.
 
-Ðàñêîììåíòèðîâàë ñòðîêè â /etc/sysconfig/spawn-fcgi
+Раскомментировал строки в /etc/sysconfig/spawn-fcgi
 # You must set some working options before the "spawn-fcgi" service will work.
 # If SOCKET points to a file, then this file is cleaned up by the init script.
 #
@@ -77,7 +77,7 @@ Jun 16 07:34:37 localhost systemd: Started My watchlog service.
 SOCKET=/var/run/php-fcgi.sock
 OPTIONS="-u apache -g apache -s $SOCKET -S -M 0600 -C 32 -F 1 -P /var/run/spawn-fcgi.pid -- /usr/bin/php-cgi"
 
-Ñîçäàë þíèò ôàéë
+Создал юнит файл
 vi /etc/systemd/system/spawn-fcgi.service
 [Unit]
 Description=Spawn-fcgi startup service by Otus
@@ -91,11 +91,11 @@ KillMode=process
 [Install]
 WantedBy=multi-user.target
 
-Çàïóñòèë è ïðîâåðèë, ñëóæáà ðàáîòàåò êîððåêòíî, çà èñêëþ÷åíèåì âûâîäà ïðåäóïðåæäåíèÿ [/etc/systemd/system/spawn-fcgi.service:1] Assignment outside of section. Ignoring.
+Запустил и проверил, служба работает корректно, за исключением вывода предупреждения [/etc/systemd/system/spawn-fcgi.service:1] Assignment outside of section. Ignoring.
 systemctl start spawn-fcgi
 systemctl status spawn-fcgi
 
-Ñêîïèðîâàë httpd.service â /etc/systemd/system è äîáàâèë ïàðàìåòð %I â êîíôèãóðàöèþ îêðóæåíèÿ
+Скопировал httpd.service в /etc/systemd/system и добавил параметр %I в конфигурацию окружения
 [Unit]
 Description=The Apache HTTP Server
 After=network.target remote-fs.target nss-lookup.target
@@ -112,25 +112,25 @@ PrivateTmp=true
 [Install]
 WantedBy=multi-user.target
 
-Ïåðåèìåíîâàë è ñêîïèðîâàë httpd.service
+Переименовал и скопировал httpd.service
 cp httpd.service httpd@first.service
 cp httpd@.service httpd@first.service
 cp httpd@.service httpd@second.service
 
-Äîáàâèë äâà ôàéëà îêðóæåíèÿ
+Добавил два файла окружения
 echo "OPTIONS=-f conf/first.conf" > /etc/sysconfig/httpd-first
 echo "OPTIONS=-f conf/second.conf" > /etc/sysconfig/httpd-second
 
-Â äèðåêòîðèè /etc/httpd/conf ñêîïèðîâàë ôàéë httpd.conf
+В директории /etc/httpd/conf скопировал файл httpd.conf
 cp httpd.conf first.conf
 cp httpd.conf second.conf
 
-Âî âòîðîì äîáàâèë çàïèñü Pid è èçìåíèë ïîðò ïðîñëóøèâàíèÿ
+Во втором добавил запись Pid и изменил порт прослушивания
 PidFile /var/run/httpd-second.pid
 Listen 8080
 
-Çàïóñòèë îáå ñëóæáû, çàïóñê óñïåøåí
-Ïðîâåðêà ïîðòîâ ïîêàçàëà, ÷òî ïîðòû ñëóøàþòñÿ ðàçíûå, êàê è áûëî óêàçàíî â êîíôèãå
+Запустил обе службы, запуск успешен
+Проверка портов показала, что порты слушаются разные, как и было указано в конфиге
 ss -tnulp | grep httpd
 tcp    LISTEN     0      128    [::]:8080               [::]:*                   users:(("httpd",pid=3589,fd=4),("httpd",pid=3588,fd=4),("httpd",pid=3587,fd=4),("httpd",pid=3586,fd=4),("httpd",pid=3585,fd=4),("httpd",pid=3584,fd=4),("httpd",pid=3583,fd=4))
 tcp    LISTEN     0      128    [::]:80                 [::]:*                   users:(("httpd",pid=3576,fd=4),("httpd",pid=3575,fd=4),("httpd",pid=3574,fd=4),("httpd",pid=3573,fd=4),("httpd",pid=3572,fd=4),("httpd",pid=3571,fd=4),("httpd",pid=3570,fd=4))
