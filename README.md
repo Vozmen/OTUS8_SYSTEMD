@@ -8,11 +8,11 @@ spawn-fcgi php php-cli mod_fcgid httpd
 
 Создал файл с конфигурацией сервиса
 >vi  /etc/sysconfig/watchlog
-<# Configuration file for my watchlog service
-# Place it to /etc/sysconfig
-# File and word in that file that we will be monit
+"#" Configuration file for my watchlog service
+"#" Place it to /etc/sysconfig
+"#" File and word in that file that we will be monit
 WORD="ALERT"
-LOG=/var/log/watchlog.log>
+LOG=/var/log/watchlog.log
 
 Создал файл лога и вписал туда ключевое слово
 >echo "ALERT" > /var/log/watchlog.log
