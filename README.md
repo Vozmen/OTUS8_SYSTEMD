@@ -134,4 +134,4 @@ Listen 8080
 ss -tnulp | grep httpd
 tcp    LISTEN     0      128    [::]:8080               [::]:*                   users:(("httpd",pid=3589,fd=4),("httpd",pid=3588,fd=4),("httpd",pid=3587,fd=4),("httpd",pid=3586,fd=4),("httpd",pid=3585,fd=4),("httpd",pid=3584,fd=4),("httpd",pid=3583,fd=4))
 tcp    LISTEN     0      128    [::]:80                 [::]:*                   users:(("httpd",pid=3576,fd=4),("httpd",pid=3575,fd=4),("httpd",pid=3574,fd=4),("httpd",pid=3573,fd=4),("httpd",pid=3572,fd=4),("httpd",pid=3571,fd=4),("httpd",pid=3570,fd=4))
-[root@sysd conf]#
+[root@sysd conf]
