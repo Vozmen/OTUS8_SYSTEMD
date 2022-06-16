@@ -8,9 +8,9 @@ spawn-fcgi php php-cli mod_fcgid httpd
 
 Создал файл с конфигурацией сервиса
 >vi  /etc/sysconfig/watchlog  
-"#" Configuration file for my watchlog service  
-"#" Place it to /etc/sysconfig  
-"#" File and word in that file that we will be monit  
+#Configuration file for my watchlog service  
+#Place it to /etc/sysconfig  
+#File and word in that file that we will be monit  
 WORD="ALERT"  
 LOG=/var/log/watchlog.log  
 
@@ -18,81 +18,82 @@ LOG=/var/log/watchlog.log
 >echo "ALERT" > /var/log/watchlog.log
 
 Создал файл скрипта и дал на него полные права всем пользователям
->vi /opt/watchlog.sh
-#!/bin/bash
-WORD=$1
-LOG=$2
-DATE=`date`
-if grep $WORD $LOG &> /dev/null
-then
-logger "$DATE: I found word, Master!"
-else
-exit 0
-fi
+>vi /opt/watchlog.sh  
+#!/bin/bash  
+WORD=$1  
+LOG=$2  
+DATE=`date`  
+if grep $WORD $LOG &> /dev/null  
+then  
+logger "$DATE: I found word, Master!"  
+else  
+exit 0  
+fi  
 chmod +x /opt/watchlog.sh
 
 Создал юнит для сервиса
->vi /etc/systemd/system/watchlog.service
-[Unit]
-Description=My watchlog service
-[Service]
-Type=oneshot
-EnvironmentFile=/etc/sysconfig/watchlog
-ExecStart=/opt/watchlog.sh $WORD $LOG
+>vi /etc/systemd/system/watchlog.service  
+[Unit]  
+Description=My watchlog service  
+[Service]  
+Type=oneshot  
+EnvironmentFile=/etc/sysconfig/watchlog  
+ExecStart=/opt/watchlog.sh $WORD $LOG  
 
 И для таймера
->vi /etc/systemd/system/watchlog.timer
-[Unit]
-Description=Run watchlog script every 30 second
-[Timer]
-# Run every 30 second
-OnUnitActiveSec=30
-Unit=watchlog.service
-[Install]
-WantedBy=multi-user.target
+>vi /etc/systemd/system/watchlog.timer  
+[Unit]  
+Description=Run watchlog script every 30 second  
+[Timer]  
+#Run every 30 second  
+OnUnitActiveSec=30  
+Unit=watchlog.service  
+[Install]  
+WantedBy=multi-user.target  
 
 Перезагрузил systemd
 >systemctl daemon-reload
 
 Запустил обе новые службы, вывод команды tail -f /var/log/messages
->tail -f /var/log/messages
-Jun 16 07:28:53 localhost systemd-logind: Removed session 4.
-Jun 16 07:28:53 localhost systemd: Removed slice User Slice of vagrant.
-Jun 16 07:29:25 localhost systemd: Created slice User Slice of vagrant.
-Jun 16 07:29:25 localhost systemd: Started Session 5 of user vagrant.
-Jun 16 07:29:25 localhost systemd-logind: New session 5 of user vagrant.
-Jun 16 07:32:53 localhost systemd: Reloading.
-Jun 16 07:33:14 localhost systemd: Started Run watchlog script every 30 second.
-Jun 16 07:34:37 localhost systemd: Starting My watchlog service...
-Jun 16 07:34:37 localhost root: Thu Jun 16 07:34:37 UTC 2022: I found word, Master!
-Jun 16 07:34:37 localhost systemd: Started My watchlog service.
+>tail -f /var/log/messages  
+Jun 16 07:28:53 localhost systemd-logind: Removed session 4.  
+Jun 16 07:28:53 localhost systemd: Removed slice User Slice of vagrant.  
+Jun 16 07:29:25 localhost systemd: Created slice User Slice of vagrant.  
+Jun 16 07:29:25 localhost systemd: Started Session 5 of user vagrant.  
+Jun 16 07:29:25 localhost systemd-logind: New session 5 of user vagrant.  
+Jun 16 07:32:53 localhost systemd: Reloading.  
+Jun 16 07:33:14 localhost systemd: Started Run watchlog script every 30 second.  
+Jun 16 07:34:37 localhost systemd: Starting My watchlog service...  
+Jun 16 07:34:37 localhost root: Thu Jun 16 07:34:37 UTC 2022: I found word, Master!  
+Jun 16 07:34:37 localhost systemd: Started My watchlog service.  
 
 Раскомментировал строки в /etc/sysconfig/spawn-fcgi
-# You must set some working options before the "spawn-fcgi" service will work.
-# If SOCKET points to a file, then this file is cleaned up by the init script.
-#
-# See spawn-fcgi(1) for all possible options.
-#
-# Example :
-SOCKET=/var/run/php-fcgi.sock
+>#You must set some working options before the "spawn-fcgi" service will work.  
+#If SOCKET points to a file, then this file is cleaned up by the init script.  
+#  
+#See spawn-fcgi(1) for all possible options.  
+#  
+#Example :  
+SOCKET=/var/run/php-fcgi.sock  
 OPTIONS="-u apache -g apache -s $SOCKET -S -M 0600 -C 32 -F 1 -P /var/run/spawn-fcgi.pid -- /usr/bin/php-cgi"
 
 Создал юнит файл
-vi /etc/systemd/system/spawn-fcgi.service
-[Unit]
-Description=Spawn-fcgi startup service by Otus
-After=network.target
-[Service]
-Type=simple
-PIDFile=/var/run/spawn-fcgi.pid
-EnvironmentFile=/etc/sysconfig/spawn-fcgi
-ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS
-KillMode=process
-[Install]
+>vi /etc/systemd/system/spawn-fcgi.service  
+[Unit]  
+Description=Spawn-fcgi startup service by Otus  
+After=network.target  
+[Service]  
+Type=simple  
+PIDFile=/var/run/spawn-fcgi.pid  
+EnvironmentFile=/etc/sysconfig/spawn-fcgi  
+ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS  
+KillMode=process  
+[Install]  
 WantedBy=multi-user.target
 
-Запустил и проверил, служба работает корректно, за исключением вывода предупреждения [/etc/systemd/system/spawn-fcgi.service:1] Assignment outside of section. Ignoring.
-systemctl start spawn-fcgi
+Запустил и проверил, служба работает корректно, за исключением вывода предупреждения
+>[/etc/systemd/system/spawn-fcgi.service:1] Assignment outside of section. Ignoring.  
+>systemctl start spawn-fcgi  
 systemctl status spawn-fcgi
 
 Скопировал httpd.service в /etc/systemd/system и добавил параметр %I в конфигурацию окружения
