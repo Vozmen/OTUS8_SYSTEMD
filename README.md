@@ -112,7 +112,7 @@ PrivateTmp=true
 WantedBy=multi-user.target
 
 Переименовал и скопировал httpd.service
->cp httpd.service httpd@first.service  
+>cp httpd.service httpd@.service  
 cp httpd@.service httpd@first.service  
 cp httpd@.service httpd@second.service
 
