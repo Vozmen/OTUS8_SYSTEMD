@@ -4,7 +4,8 @@ Homework
 Сразу установил необходимое ПО
 yum install -y \
 epel-release \
-spawn-fcgi php php-cli mod_fcgid httpd
+spawn-fcgi \
+php php-cli mod_fcgid httpd
 
 Создал файл с конфигурацией сервиса
 vi  /etc/sysconfig/watchlog

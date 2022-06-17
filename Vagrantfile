@@ -10,5 +10,6 @@ Vagrant.configure(2) do |config|
 	end
 		config.vm.define "sysd" do |sysd|
 			sysd.vm.hostname = "sysd"
+			#sysd.vm.provision "shell", path: "script.sh"
 	end
 end
