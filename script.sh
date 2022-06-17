@@ -1,13 +1,3 @@
-#Soft install
-yum install -y \
-epel-release \
-php \
-php-cli \
-mod_fcgid \
-httpd \
-spawn-fcgi \
-wget
-
 #Create config file
 cat << EOF > /etc/sysconfig/watchlog
 WORD=\"ALERT\"
@@ -62,6 +52,9 @@ systemctl daemon-reload
 #Start service
 systemctl start watchlog.timer
 systemctl start watchlog.service
+
+#Install soft
+yum install epel-release -y && yum install spawn-fcgi php php-cli mod_fcgid httpd -y && yum install wget -y
 
 #Change spawn-fcgi
 cat << EOF > /etc/sysconfig/spawn-fcgi
