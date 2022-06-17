@@ -1,8 +1,8 @@
 # OTUS8_SYSTEMD
 Homework
 
-Ñðàçó óñòàíîâèë íåîáõîäèìîå ÏÎ
-yum install -y \
+Ð¡Ñ€Ð°Ð·Ñƒ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ð» Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾Ðµ ÐŸÐž
+>[root@sysd ~]# yum install -y \
 epel-release \
 spawn-fcgi \
 php \
@@ -10,132 +10,132 @@ php-cli \
 mod_fcgid \
 httpd
 
-Ñîçäàë ôàéë ñ êîíôèãóðàöèåé ñåðâèñà
-vi  /etc/sysconfig/watchlog
-# Configuration file for my watchlog service
-# Place it to /etc/sysconfig
-# File and word in that file that we will be monit
-WORD="ALERT"
+Ð¡Ð¾Ð·Ð´Ð°Ð» Ñ„Ð°Ð¹Ð» Ñ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸ÐµÐ¹ ÑÐµÑ€Ð²Ð¸ÑÐ°
+>[root@sysd ~]# vi  /etc/sysconfig/watchlog \
+\# Configuration file for my watchlog service \
+\# Place it to /etc/sysconfig \
+\# File and word in that file that we will be monit \
+WORD="ALERT" \
 LOG=/var/log/watchlog.log
 
-Ñîçäàë ôàéë ëîãà è âïèñàë òóäà êëþ÷åâîå ñëîâî
-echo "ALERT" > /var/log/watchlog.log
+Ð¡Ð¾Ð·Ð´Ð°Ð» Ñ„Ð°Ð¹Ð» Ð»Ð¾Ð³Ð° Ð¸ Ð²Ð¿Ð¸ÑÐ°Ð» Ñ‚ÑƒÐ´Ð° ÐºÐ»ÑŽÑ‡ÐµÐ²Ð¾Ðµ ÑÐ»Ð¾Ð²Ð¾
+>[root@sysd ~]# echo "ALERT" > /var/log/watchlog.log
 
-Ñîçäàë ôàéë ñêðèïòà è äàë íà íåãî ïîëíûå ïðàâà âñåì ïîëüçîâàòåëÿì
-vi /opt/watchlog.sh
-#!/bin/bash
-WORD=$1
-LOG=$2
-DATE=`date`
-if grep $WORD $LOG &> /dev/null
-then
-logger "$DATE: I found word, Master!"
-else
-exit 0
-fi
-chmod +x /opt/watchlog.sh
+Ð¡Ð¾Ð·Ð´Ð°Ð» Ñ„Ð°Ð¹Ð» ÑÐºÑ€Ð¸Ð¿Ñ‚Ð° Ð¸ Ð´Ð°Ð» Ð½Ð° Ð½ÐµÐ³Ð¾ Ð¿Ð¾Ð»Ð½Ñ‹Ðµ Ð¿Ñ€Ð°Ð²Ð° Ð²ÑÐµÐ¼ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑÐ¼
+>[root@sysd ~]# vi /opt/watchlog.sh  \
+\#!/bin/bash  \
+WORD=$1  \
+LOG=$2  \
+DATE=`date`  \
+if grep $WORD $LOG &> /dev/null  \
+then  \
+logger "$DATE: I found word, Master!"  \
+else  \
+exit 0  \
+fi  \
+chmod +x /opt/watchlog.sh  \
 
-Ñîçäàë þíèò äëÿ ñåðâèñà
-vi /etc/systemd/system/watchlog.service
-[Unit]
-Description=My watchlog service
-[Service]
-Type=oneshot
-EnvironmentFile=/etc/sysconfig/watchlog
-ExecStart=/opt/watchlog.sh $WORD $LOG
+Ð¡Ð¾Ð·Ð´Ð°Ð» ÑŽÐ½Ð¸Ñ‚ Ð´Ð»Ñ ÑÐµÑ€Ð²Ð¸ÑÐ°
+>[root@sysd ~]# vi /etc/systemd/system/watchlog.service  \
+[Unit]  \
+Description=My watchlog service  \
+[Service]  \
+Type=oneshot  \
+EnvironmentFile=/etc/sysconfig/watchlog  \
+ExecStart=/opt/watchlog.sh $WORD $LOG  \
 
-È äëÿ òàéìåðà
-vi /etc/systemd/system/watchlog.timer
-[Unit]
-Description=Run watchlog script every 30 second
-[Timer]
-# Run every 30 second
-OnUnitActiveSec=30
-Unit=watchlog.service
-[Install]
-WantedBy=multi-user.target
+Ð˜ Ð´Ð»Ñ Ñ‚Ð°Ð¹Ð¼ÐµÑ€Ð°
+>[root@sysd ~]# vi /etc/systemd/system/watchlog.timer  \
+[Unit]  \
+Description=Run watchlog script every 30 second  \
+[Timer]  \
+\# Run every 30 second  \
+OnUnitActiveSec=30  \
+Unit=watchlog.service  \
+[Install]  \
+WantedBy=multi-user.target  \
 
-Ïåðåçàãðóçèë systemd
-systemctl daemon-reload
+ÐŸÐµÑ€ÐµÐ·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ð» systemd
+>systemctl daemon-reload
 
-Çàïóñòèë îáå íîâûå ñëóæáû, âûâîä êîìàíäû tail -f /var/log/messages
-[root@sysd ~]# tail -f /var/log/messages
-Jun 16 07:28:53 localhost systemd-logind: Removed session 4.
-Jun 16 07:28:53 localhost systemd: Removed slice User Slice of vagrant.
-Jun 16 07:29:25 localhost systemd: Created slice User Slice of vagrant.
-Jun 16 07:29:25 localhost systemd: Started Session 5 of user vagrant.
-Jun 16 07:29:25 localhost systemd-logind: New session 5 of user vagrant.
-Jun 16 07:32:53 localhost systemd: Reloading.
-Jun 16 07:33:14 localhost systemd: Started Run watchlog script every 30 second.
-Jun 16 07:34:37 localhost systemd: Starting My watchlog service...
-Jun 16 07:34:37 localhost root: Thu Jun 16 07:34:37 UTC 2022: I found word, Master!
-Jun 16 07:34:37 localhost systemd: Started My watchlog service.
+Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ð» Ð¾Ð±Ðµ Ð½Ð¾Ð²Ñ‹Ðµ ÑÐ»ÑƒÐ¶Ð±Ñ‹, Ð²Ñ‹Ð²Ð¾Ð´ ÐºÐ¾Ð¼Ð°Ð½Ð´Ñ‹ tail -f /var/log/messages
+>[root@sysd ~]# tail -f /var/log/messages  \
+Jun 16 07:28:53 localhost systemd-logind: Removed session 4.  \
+Jun 16 07:28:53 localhost systemd: Removed slice User Slice of vagrant.  \
+Jun 16 07:29:25 localhost systemd: Created slice User Slice of vagrant.  \
+Jun 16 07:29:25 localhost systemd: Started Session 5 of user vagrant.  \
+Jun 16 07:29:25 localhost systemd-logind: New session 5 of user vagrant.  \
+Jun 16 07:32:53 localhost systemd: Reloading.  \
+Jun 16 07:33:14 localhost systemd: Started Run watchlog script every 30 second.  \
+Jun 16 07:34:37 localhost systemd: Starting My watchlog service...  \
+Jun 16 07:34:37 localhost root: Thu Jun 16 07:34:37 UTC 2022: I found word, Master!  \
+Jun 16 07:34:37 localhost systemd: Started My watchlog service.  \
 
-Ðàñêîììåíòèðîâàë ñòðîêè â /etc/sysconfig/spawn-fcgi
-# You must set some working options before the "spawn-fcgi" service will work.
-# If SOCKET points to a file, then this file is cleaned up by the init script.
-#
-# See spawn-fcgi(1) for all possible options.
-#
-# Example :
-SOCKET=/var/run/php-fcgi.sock
-OPTIONS="-u apache -g apache -s $SOCKET -S -M 0600 -C 32 -F 1 -P /var/run/spawn-fcgi.pid -- /usr/bin/php-cgi"
+Ð Ð°ÑÐºÐ¾Ð¼Ð¼ÐµÐ½Ñ‚Ð¸Ñ€Ð¾Ð²Ð°Ð» ÑÑ‚Ñ€Ð¾ÐºÐ¸ Ð² /etc/sysconfig/spawn-fcgi
+>\# You must set some working options before the "spawn-fcgi" service will work.  \
+\# If SOCKET points to a file, then this file is cleaned up by the init script.  \
+\#  \
+\# See spawn-fcgi(1) for all possible options.  \
+\#  \
+\# Example :  \
+\SOCKET=/var/run/php-fcgi.sock  \
+\OPTIONS="-u apache -g apache -s $SOCKET -S -M 0600 -C 32 -F 1 -P /var/run/spawn-fcgi.pid -- /usr/bin/php-cgi"  \
 
-Ñîçäàë þíèò ôàéë
-vi /etc/systemd/system/spawn-fcgi.service
-[Unit]
-Description=Spawn-fcgi startup service by Otus
-After=network.target
-[Service]
-Type=simple
-PIDFile=/var/run/spawn-fcgi.pid
-EnvironmentFile=/etc/sysconfig/spawn-fcgi
-ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS
-KillMode=process
-[Install]
-WantedBy=multi-user.target
+Ð¡Ð¾Ð·Ð´Ð°Ð» ÑŽÐ½Ð¸Ñ‚ Ñ„Ð°Ð¹Ð»
+>[root@sysd ~]# vi /etc/systemd/system/spawn-fcgi.service  \
+[Unit]  \
+Description=Spawn-fcgi startup service by Otus  \
+After=network.target  \
+[Service]  \
+Type=simple  \
+PIDFile=/var/run/spawn-fcgi.pid  \
+EnvironmentFile=/etc/sysconfig/spawn-fcgi  \
+ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS  \
+KillMode=process  \
+[Install]  \
+WantedBy=multi-user.target  \
 
-Çàïóñòèë è ïðîâåðèë, ñëóæáà ðàáîòàåò êîððåêòíî, çà èñêëþ÷åíèåì âûâîäà ïðåäóïðåæäåíèÿ [/etc/systemd/system/spawn-fcgi.service:1] Assignment outside of section. Ignoring.
-systemctl start spawn-fcgi
-systemctl status spawn-fcgi
+Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ð» Ð¸ Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ð», ÑÐ»ÑƒÐ¶Ð±Ð° Ñ€Ð°Ð±Ð¾Ñ‚Ð°ÐµÑ‚ ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ð¾
+>[root@sysd ~]# systemctl start spawn-fcgi  \
+[root@sysd ~]# systemctl status spawn-fcgi  \
 
-Ñêîïèðîâàë httpd.service â /etc/systemd/system è äîáàâèë ïàðàìåòð %I â êîíôèãóðàöèþ îêðóæåíèÿ
-[Unit]
-Description=The Apache HTTP Server
-After=network.target remote-fs.target nss-lookup.target
-Documentation=man:httpd(8)
-Documentation=man:apachectl(8)
-[Service]
-Type=notify
-EnvironmentFile=/etc/sysconfig/httpd-%I
-ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
-ExecReload=/usr/sbin/httpd $OPTIONS -k graceful
-ExecStop=/bin/kill -WINCH ${MAINPID}
-KillSignal=SIGCONT
-PrivateTmp=true
-[Install]
-WantedBy=multi-user.target
+Ð¡ÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ð» httpd.service Ð² /etc/systemd/system Ð¸ Ð´Ð¾Ð±Ð°Ð²Ð¸Ð» Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€ %I Ð² ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸ÑŽ Ð¾ÐºÑ€ÑƒÐ¶ÐµÐ½Ð¸Ñ
+>[Unit]  \
+Description=The Apache HTTP Server  \
+After=network.target remote-fs.target nss-lookup.target  \
+Documentation=man:httpd(8)  \
+Documentation=man:apachectl(8)  \
+[Service]  \
+Type=notify  \
+EnvironmentFile=/etc/sysconfig/httpd-%I  \
+ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND  \
+ExecReload=/usr/sbin/httpd $OPTIONS -k graceful  \
+ExecStop=/bin/kill -WINCH ${MAINPID}  \
+KillSignal=SIGCONT  \
+PrivateTmp=true  \
+[Install]  \
+WantedBy=multi-user.target  \
 
-Ïåðåèìåíîâàë è ñêîïèðîâàë httpd.service
-cp httpd.service httpd@first.service
-cp httpd@.service httpd@first.service
-cp httpd@.service httpd@second.service
+ÐŸÐµÑ€ÐµÐ¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð» Ð¸ ÑÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ð» httpd.service
+>[root@sysd ~]# cp httpd.service httpd@first.service  \
+[root@sysd ~]# cp httpd@.service httpd@first.service  \
+[root@sysd ~]# cp httpd@.service httpd@second.service  \
 
-Äîáàâèë äâà ôàéëà îêðóæåíèÿ
-echo "OPTIONS=-f conf/first.conf" > /etc/sysconfig/httpd-first
-echo "OPTIONS=-f conf/second.conf" > /etc/sysconfig/httpd-second
+Ð”Ð¾Ð±Ð°Ð²Ð¸Ð» Ð´Ð²Ð° Ñ„Ð°Ð¹Ð»Ð° Ð¾ÐºÑ€ÑƒÐ¶ÐµÐ½Ð¸Ñ
+>[root@sysd ~]# echo "OPTIONS=-f conf/first.conf" > /etc/sysconfig/httpd-first  \
+[root@sysd ~]# echo "OPTIONS=-f conf/second.conf" > /etc/sysconfig/httpd-second  \
 
-Â äèðåêòîðèè /etc/httpd/conf ñêîïèðîâàë ôàéë httpd.conf
-cp httpd.conf first.conf
-cp httpd.conf second.conf
+Ð’ Ð´Ð¸Ñ€ÐµÐºÑ‚Ð¾Ñ€Ð¸Ð¸ /etc/httpd/conf ÑÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ð» Ñ„Ð°Ð¹Ð» httpd.conf
+>[root@sysd ~]# cp httpd.conf first.conf  \
+[root@sysd ~]# cp httpd.conf second.conf  \
 
-Âî âòîðîì äîáàâèë çàïèñü Pid è èçìåíèë ïîðò ïðîñëóøèâàíèÿ
-PidFile /var/run/httpd-second.pid
+Ð’Ð¾ Ð²Ñ‚Ð¾Ñ€Ð¾Ð¼ Ð´Ð¾Ð±Ð°Ð²Ð¸Ð» Ð·Ð°Ð¿Ð¸ÑÑŒ Pid Ð¸ Ð¸Ð·Ð¼ÐµÐ½Ð¸Ð» Ð¿Ð¾Ñ€Ñ‚ Ð¿Ñ€Ð¾ÑÐ»ÑƒÑˆÐ¸Ð²Ð°Ð½Ð¸Ñ
+>PidFile /var/run/httpd-second.pid  \
 Listen 8080
 
-Çàïóñòèë îáå ñëóæáû, çàïóñê óñïåøåí
-Ïðîâåðêà ïîðòîâ ïîêàçàëà, ÷òî ïîðòû ñëóøàþòñÿ ðàçíûå, êàê è áûëî óêàçàíî â êîíôèãå
-ss -tnulp | grep httpd
-tcp    LISTEN     0      128    [::]:8080               [::]:*                   users:(("httpd",pid=3589,fd=4),("httpd",pid=3588,fd=4),("httpd",pid=3587,fd=4),("httpd",pid=3586,fd=4),("httpd",pid=3585,fd=4),("httpd",pid=3584,fd=4),("httpd",pid=3583,fd=4))
-tcp    LISTEN     0      128    [::]:80                 [::]:*                   users:(("httpd",pid=3576,fd=4),("httpd",pid=3575,fd=4),("httpd",pid=3574,fd=4),("httpd",pid=3573,fd=4),("httpd",pid=3572,fd=4),("httpd",pid=3571,fd=4),("httpd",pid=3570,fd=4))
+Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ð» Ð¾Ð±Ðµ ÑÐ»ÑƒÐ¶Ð±Ñ‹, Ð·Ð°Ð¿ÑƒÑÐº ÑƒÑÐ¿ÐµÑˆÐµÐ½
+ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¿Ð¾Ñ€Ñ‚Ð¾Ð² Ð¿Ð¾ÐºÐ°Ð·Ð°Ð»Ð°, Ñ‡Ñ‚Ð¾ Ð¿Ð¾Ñ€Ñ‚Ñ‹ ÑÐ»ÑƒÑˆÐ°ÑŽÑ‚ÑÑ Ñ€Ð°Ð·Ð½Ñ‹Ðµ, ÐºÐ°Ðº Ð¸ Ð±Ñ‹Ð»Ð¾ ÑƒÐºÐ°Ð·Ð°Ð½Ð¾ Ð² ÐºÐ¾Ð½Ñ„Ð¸Ð³Ðµ
+>[root@sysd ~]# ss -tnulp | grep httpd
+tcp    LISTEN     0      128    [::]:8080               [::]:*                   users:(("httpd",pid=3589,fd=4),("httpd",pid=3588,fd=4),("httpd",pid=3587,fd=4),("httpd",pid=3586,fd=4),("httpd",pid=3585,fd=4),("httpd",pid=3584,fd=4),("httpd",pid=3583,fd=4))  \
+tcp    LISTEN     0      128    [::]:80                 [::]:*                   users:(("httpd",pid=3576,fd=4),("httpd",pid=3575,fd=4),("httpd",pid=3574,fd=4),("httpd",pid=3573,fd=4),("httpd",pid=3572,fd=4),("httpd",pid=3571,fd=4),("httpd",pid=3570,fd=4))  \
 [root@sysd conf]
