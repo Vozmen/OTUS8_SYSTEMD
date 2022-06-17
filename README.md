@@ -11,7 +11,7 @@ mod_fcgid \
 httpd
 
 Создал файл с конфигурацией сервиса
->vi  /etc/sysconfig/watchlog
+>vi  /etc/sysconfig/watchlog \
 \# Configuration file for my watchlog service \
 \# Place it to /etc/sysconfig \
 \# File and word in that file that we will be monit \
@@ -19,21 +19,21 @@ WORD="ALERT" \
 LOG=/var/log/watchlog.log
 
 Создал файл лога и вписал туда ключевое слово
-echo "ALERT" > /var/log/watchlog.log
+>echo "ALERT" > /var/log/watchlog.log
 
 Создал файл скрипта и дал на него полные права всем пользователям
-vi /opt/watchlog.sh
-#!/bin/bash
-WORD=$1
-LOG=$2
-DATE=`date`
-if grep $WORD $LOG &> /dev/null
-then
-logger "$DATE: I found word, Master!"
-else
-exit 0
-fi
-chmod +x /opt/watchlog.sh
+>vi /opt/watchlog.sh  \
+\#!/bin/bash  \
+WORD=$1  \
+LOG=$2  \
+DATE=`date`  \
+if grep $WORD $LOG &> /dev/null  \
+then  \
+logger "$DATE: I found word, Master!"  \
+else  \
+exit 0  \
+fi  \
+chmod +x /opt/watchlog.sh  \
 
 Создал юнит для сервиса
 vi /etc/systemd/system/watchlog.service
