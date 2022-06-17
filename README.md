@@ -12,10 +12,10 @@ httpd
 
 Создал файл с конфигурацией сервиса
 >vi  /etc/sysconfig/watchlog
-\# Configuration file for my watchlog service
-\# Place it to /etc/sysconfig
-\# File and word in that file that we will be monit
-WORD="ALERT"
+\# Configuration file for my watchlog service \
+\# Place it to /etc/sysconfig \
+\# File and word in that file that we will be monit \
+WORD="ALERT" \
 LOG=/var/log/watchlog.log
 
 Создал файл лога и вписал туда ключевое слово
